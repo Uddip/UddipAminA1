@@ -82,9 +82,11 @@ namespace UddipAminA1
             do
             {
                 Console.WriteLine("Welcome, please choose a command:");
-                Console.WriteLine("Press 2 to view vacation days");
-                Console.WriteLine("Press 1 to insert new vacation days");
-                Console.WriteLine("Press 3 to return to main menu");
+                Console.WriteLine("Press 1 to view vacation days");
+                Console.WriteLine("Press 2 to book new vacation day");
+                Console.WriteLine("Press 3 to update vacation day");
+                Console.WriteLine("Press 4 to remove vacation day");
+                Console.WriteLine("Press 5 to return to main menu");
 
                 input = int.Parse(Console.ReadLine());
                 Console.WriteLine();
@@ -94,6 +96,10 @@ namespace UddipAminA1
                     case 1:
                         break;
                     case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
                         break;
                     default:
                         Console.WriteLine("Returning to main menu...");
