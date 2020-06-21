@@ -7,7 +7,7 @@ namespace UddipAminA1
     class Employee
     {
         private int _iD;
-        private int _phone;
+        private long _phone;
         private String _name;
         private String _address;
         private String _email;
@@ -23,7 +23,7 @@ namespace UddipAminA1
             _role = "";
         }
 
-        public Employee(int iD, int phone, String name, String address, String email, String role)
+        public Employee(int iD, long phone, String name, String address, String email, String role)
         {
             _iD = iD;
             _phone = phone;
@@ -39,35 +39,33 @@ namespace UddipAminA1
             set { _iD = value; }
         }
 
-        public int Phone
+        public long Phone
         {
             get { return _phone; }
             set { _phone = value; }
         }
 
-        public void addEmployee(Employee employee)
+        public String Name
         {
-
+            get { return _address; }
+            set { _address = value; }
         }
 
-        public void deleteEmployee()
+        public String Email
         {
-
+            get { return _email; }
+            set { _email = value; }
         }
 
-        public void updateEmployee()
+        public String Role
         {
-
-        }
-
-        public void viewEmployee()
-        {
-
+            get { return _role; }
+            set { _role = value; }
         }
 
         public override string ToString()
         {
-            return base.ToString();
+            return $"{_name, -15} {_role, -20} {_iD, -13} {_email, -30} {_phone, -15}";
         }
     }
 }

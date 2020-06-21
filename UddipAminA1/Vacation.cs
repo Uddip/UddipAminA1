@@ -6,42 +6,40 @@ namespace UddipAminA1
 {
     class Vacation
     {
-        private int _iD;
+        private long _iD;
+        private int _employeeID;
         private int _numDays;
-        private String _employeeID;
 
         public Vacation()
         {
             _iD = 0;
+            _employeeID = 0;
             _numDays = 0;
-            _employeeID = "";
         }
 
-        public Vacation(int iD, int numDays, , String employeeID)
+        public Vacation(long iD, int employeeID, int numDays)
         {
             _iD = iD;
-            _numDays = numDays;
             _employeeID = employeeID;
+            _numDays = numDays;
         }
 
-        public void addVacation()
+        public long Id
         {
-
+            get { return _iD; }
+            set { _iD = value; }
         }
 
-        public void deleteVacation()
+        public int EmployeeID
         {
-
+            get { return _employeeID; }
+            set { _employeeID = value; }
         }
 
-        public void updateVacation()
+        public int NumDays
         {
-
-        }
-
-        public void viewVacation()
-        {
-
+            get { return _numDays; }
+            set { _numDays = value; }
         }
 
         public override string ToString()
