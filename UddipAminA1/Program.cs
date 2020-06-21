@@ -7,19 +7,69 @@ namespace UddipAminA1
 {
     class Program
     {
-        //Modify to use for all
-        public void addEmployee(Employee employee)
+        /*
+         * Asks user for new employee information, then attempts to add them to the list.
+         * If employee ID is NOT 9 digits, ouputs an error message and returns.
+         * If phone # is NOT 10 digit outputs an error message and returns.
+         * If employee with the same ID and phone # exists, prompts user to try again after updating information and returns.
+         */
+        static void addEmployee(List<Employee> employees)
         {
+            Console.WriteLine("Please enter the employee's details.");
+            Console.Write("Name: ");
+            string name = Console.ReadLine();
 
+            Console.Write("Role: ");
+            string role = Console.ReadLine();
+
+            Console.Write("ID (9 Digits): ");
+            int id = int.Parse(Console.ReadLine());
+
+            Console.Write("Email: ");
+            string email = Console.ReadLine();
+
+            Console.Write("Phone #: ");
+            long phone = long.Parse(Console.ReadLine());
+
+            Console.Write("Address: ");
+            string address = Console.ReadLine();
+
+            Console.WriteLine();
+
+            if (id.ToString().Length != 9)
+            {
+                Console.WriteLine("Plsease make sure the employee ID is 9 digits long.");
+                Console.WriteLine();
+                return;
+            }
+
+            if (phone.ToString().Length != 10)
+            {
+                Console.WriteLine("Plsease make sure the phone # is 10 digits long.");
+                Console.WriteLine();
+                return;
+            }
+
+            var exists = from emp in employees
+                         where emp.Id == id || emp.Phone == phone || emp.Email.ToLower().Equals(email.ToLower())
+                         select emp;
+            if (exists.Any())
+            {
+                Console.WriteLine("That Employee already exists, please update information and try again.");
+                Console.WriteLine();
+                return;
+            }
+
+            employees.Add(new Employee(id, phone, name, address, email, role));
         }
 
-        //Modify to use for all
+        /**/
         public void deleteEmployee()
         {
 
         }
 
-        //Modify to use for all
+        /**/
         public void updateEmployee()
         {
 
@@ -35,8 +85,8 @@ namespace UddipAminA1
                              select emp;
             if (nameSorted.Any())
             {
-                Console.WriteLine($"{"Name",-15} {"Role",-20} {"ID",-13} {"Email",-30} {"Phone",-15}");
-                Console.WriteLine("----------------------------------------------------------------------------------------------");
+                Console.WriteLine($"{"Name",-15} {"Role",-20} {"ID",-13} {"Email",-30} {"Phone",-15} {"Address",-20}");
+                Console.WriteLine("----------------------------------------------------------------------------------------------------------------");
 
                 foreach (var item in nameSorted)
                 {
@@ -84,6 +134,7 @@ namespace UddipAminA1
                         viewEmployees(employees);
                         break;
                     case 2:
+                        addEmployee(employees);
                         break;
                     case 3:
                         break;
