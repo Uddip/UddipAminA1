@@ -33,7 +33,19 @@ namespace UddipAminA1
             _role = role;
         }
 
-        public void addEmployee()
+        public int Id
+        {
+            get { return _iD; }
+            set { _iD = value; }
+        }
+
+        public int Phone
+        {
+            get { return _phone; }
+            set { _phone = value; }
+        }
+
+        public void addEmployee(Employee employee)
         {
 
         }
@@ -51,6 +63,11 @@ namespace UddipAminA1
         public void viewEmployee()
         {
 
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
         }
     }
 }

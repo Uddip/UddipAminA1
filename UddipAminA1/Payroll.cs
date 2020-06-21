@@ -49,5 +49,10 @@ namespace UddipAminA1
         {
 
         }
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
     }
 }

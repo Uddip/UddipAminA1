@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace UddipAminA1
 {
@@ -77,8 +79,12 @@ namespace UddipAminA1
 
         static void vacationMenu()
         {
+            List<Employee> employees = new List<Employee>();
+            List<Payroll> payrolls = new List<Payroll>();
+            List<Vacation> vacations = new List<Vacation>();
             int input;
 
+            employees.Add(new Employee());
             do
             {
                 Console.WriteLine("Welcome, please choose a command:");
@@ -110,6 +116,7 @@ namespace UddipAminA1
 
         static void Main(string[] args)
         {
+            
             int input;
 
             do
