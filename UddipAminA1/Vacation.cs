@@ -44,7 +44,7 @@ namespace UddipAminA1
 
         public override string ToString()
         {
-            return base.ToString();
+            return $"{_iD,-15} {_employeeID,-15} {_numDays,-5}";
         }
     }
 }

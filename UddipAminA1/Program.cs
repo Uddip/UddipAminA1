@@ -1,12 +1,76 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace UddipAminA1
 {
     class Program
     {
+        static void employeeMenu(List<Employee> employees)
+        {
+            int input;
+
+            do
+            {
+                Console.WriteLine("Welcome, please choose a command:");
+                Console.WriteLine("Press 1 to list all employees");
+                Console.WriteLine("Press 2 to add new employee");
+                Console.WriteLine("Press 3 to update employee");
+                Console.WriteLine("Press 4 to delete employee");
+                Console.WriteLine("Press 5 to return to main menu");
+
+                input = int.Parse(Console.ReadLine());
+                Console.WriteLine();
+
+                switch (input)
+                {
+                    case 1:
+                        viewEmployees(employees);
+                        break;
+                    case 2:
+                        addEmployee(employees);
+                        break;
+                    case 3:
+                        updateEmployee(employees);
+                        break;
+                    case 4:
+                        deleteEmployee(employees);
+                        break;
+                    default:
+                        Console.WriteLine("Returning to main menu...");
+                        break;
+                }
+            } while (input != 5);
+        }
+
+        /*
+         * View a list of all employees ordered by name
+         */
+        static void viewEmployees(List<Employee> employees)
+        {
+            var nameSorted = from emp in employees
+                             orderby emp.Name
+                             select emp;
+            if (nameSorted.Any())
+            {
+                Console.WriteLine($"{"Name",-15} {"Role",-20} {"ID",-13} {"Email",-30} {"Phone",-15} {"Address",-20}");
+                Console.WriteLine("----------------------------------------------------------------------------------------------------------------");
+
+                foreach (var item in nameSorted)
+                {
+                    Console.WriteLine(item.ToString());
+                }
+
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.WriteLine($"{"N/A",-15} {"N/A",-20} {"N/A",-13} {"N/A",-25} {"N/A",-15}");
+            }
+        }
+
         /*
          * Asks user for new employee information, then attempts to add them to the list.
          * If employee ID is NOT 9 digits, ouputs an error message and returns.
@@ -63,91 +127,140 @@ namespace UddipAminA1
             employees.Add(new Employee(id, phone, name, address, email, role));
         }
 
-        /**/
-        public void deleteEmployee()
-        {
-
-        }
-
-        /**/
-        public void updateEmployee()
-        {
-
-        }
 
         /*
-         * View a list of all employees ordered by name
+         * Asks user for name and ID of employee they wish to update.
+         * Looks to see if employee exists.
+         * If employee exists, the user must enter all the data they wish to update, while entering data they wish to keep the same.
+         * If correct formats aren't used, changes are denied and error message is shown.
+         * If a new ID, email or phone # matches an existing employee's, changes are denied.
+         * Once all the checks are passed, changes are made, new changes for the employee are displayed.
          */
-        static void viewEmployees(List<Employee> employees)
+        static void updateEmployee(List<Employee> employees)
         {
-            var nameSorted = from emp in employees
-                             orderby emp.Name
-                             select emp;
-            if (nameSorted.Any())
-            {
-                Console.WriteLine($"{"Name",-15} {"Role",-20} {"ID",-13} {"Email",-30} {"Phone",-15} {"Address",-20}");
-                Console.WriteLine("----------------------------------------------------------------------------------------------------------------");
+            Console.WriteLine("Search via name and ID.");
+            Console.Write("Name: ");
+            string name = Console.ReadLine().Trim();
 
-                foreach (var item in nameSorted)
+            Console.Write("ID: ");
+            int id = int.Parse(Console.ReadLine());
+
+            var exists = from emp in employees
+                         where emp.Name.ToLower().Equals(name.ToLower()) && emp.Id == id
+                         select emp;
+            Console.WriteLine();
+
+            if (exists.Any())
+            {
+                int index = employees.IndexOf(exists.First());
+
+                Console.WriteLine("Employee found...");
+                Console.WriteLine("Enter new employee details");
+                Console.Write("Name: ");
+                string nameNew = Console.ReadLine();
+
+                Console.Write("Role: ");
+                string roleNew = Console.ReadLine();
+
+                Console.Write("ID (9 Digits): ");
+                int idNew = int.Parse(Console.ReadLine());
+
+                Console.Write("Email: ");
+                string emailNew = Console.ReadLine();
+
+                Console.Write("Phone #: ");
+                long phoneNew = long.Parse(Console.ReadLine());
+
+                Console.Write("Address: ");
+                string addressNew = Console.ReadLine();
+
+                if (idNew.ToString().Length != 9)
                 {
-                    Console.WriteLine(item.ToString());
+                    Console.WriteLine("Plsease make sure the employee ID is 9 digits long.");
+                    Console.WriteLine();
+                    return;
                 }
 
-                Console.WriteLine();
+                if (phoneNew.ToString().Length != 10)
+                {
+                    Console.WriteLine("Plsease make sure the phone # is 10 digits long.");
+                    Console.WriteLine();
+                    return;
+                }
+
+                var conflict = from emp in employees
+                               where emp.Id == idNew || emp.Phone == phoneNew || emp.Email.ToLower().Equals(emailNew.ToLower())
+                               select emp;
+
+                if (conflict.Any())
+                {
+                    Console.WriteLine("There appears to be a conflict, the ID, phone # or email already belongs to another employee");
+                }
+                else
+                {
+                    Console.WriteLine("Updating employee...");
+                    employees[index].Name = nameNew;
+                    employees[index].Role = roleNew;
+                    employees[index].Id = idNew;
+                    employees[index].Email = emailNew;
+                    employees[index].Phone = phoneNew;
+                    employees[index].Address = addressNew;
+                    Console.WriteLine("Changes have been applied");
+                    Console.WriteLine(employees[index].ToString());
+                }
             }
             else
             {
-                Console.WriteLine($"{"N/A",-15} {"N/A",-20} {"N/A",-13} {"N/A",-25} {"N/A",-15}");
+                Console.WriteLine("That employee does not exist.");
             }
+            Console.WriteLine();
         }
 
-        static int mainMenu()
+        /*
+         * Asks user for name and ID of employee to be deleted.
+         * Checks to see if any employee with name and ID exist.
+         * If found, displays employee and doublchecks if user wishes to delete.
+         * If yes...employee is deleted from list
+         * If no....return from method
+         */
+        static void deleteEmployee(List<Employee> employees)
         {
-            Console.WriteLine("Welcome, please choose a command:");
-            Console.WriteLine("Press 1 to modify employees");
-            Console.WriteLine("Press 2 to add payroll");
-            Console.WriteLine("Press 3 to view vacation days");
-            Console.WriteLine("Press 4 to exit program");
+            Console.WriteLine("Search via name and ID.");
+            Console.Write("Name: ");
+            string name = Console.ReadLine().Trim();
 
-            return int.Parse(Console.ReadLine());
-        }
+            Console.Write("ID: ");
+            int id = int.Parse(Console.ReadLine());
 
-        static void employeeMenu(List<Employee> employees)
-        {
-            int input;
+            var exists = from emp in employees
+                         where emp.Name.ToLower().Equals(name.ToLower()) && emp.Id == id
+                         select emp;
+            Console.WriteLine();
 
-            do
+            if (exists.Any())
             {
-                Console.WriteLine("Welcome, please choose a command:");
-                Console.WriteLine("Press 1 to list all employees");
-                Console.WriteLine("Press 2 to add new employee");
-                Console.WriteLine("Press 3 to update employee");
-                Console.WriteLine("Press 4 to delete employee");
-                Console.WriteLine("Press 5 to return to main menu");
-
-                input = int.Parse(Console.ReadLine());
+                Console.WriteLine("Employee found...");
+                Console.WriteLine(exists.First().ToString());
                 Console.WriteLine();
+                Console.Write("Are you sure you want to remove employee (Y/N): ");
+                string input = Console.ReadLine();
 
-                switch (input)
+                if (input.ToUpper().Equals("Y"))
                 {
-                    case 1:
-                        viewEmployees(employees);
-                        break;
-                    case 2:
-                        addEmployee(employees);
-                        break;
-                    case 3:
-                        break;
-                    case 4:
-                        break;
-                    default:
-                        Console.WriteLine("Returning to main menu...");
-                        break;
+                    Console.WriteLine("Removing employee...");
+                    employees.Remove(exists.First());
+                    Console.WriteLine("Successfully removed");
                 }
-            } while (input != 5);
+
+            }
+            else
+            {
+                Console.WriteLine("That employee does not exist.");
+            }
+            Console.WriteLine();
         }
 
-        static void payrollMenu()
+        static void payrollMenu(List<Payroll> payrolls, List<Employee> employees)
         {
             int input;
 
@@ -156,7 +269,8 @@ namespace UddipAminA1
                 Console.WriteLine("Welcome, please choose a command:");
                 Console.WriteLine("Press 1 to insert new payroll entry");
                 Console.WriteLine("Press 2 to payroll hisory for an employee");
-                Console.WriteLine("Press 3 to return to main menu");
+                Console.WriteLine("Press 3 to search for a payroll");
+                Console.WriteLine("Press 4 to return to main menu");
 
                 input = int.Parse(Console.ReadLine());
                 Console.WriteLine();
@@ -164,17 +278,166 @@ namespace UddipAminA1
                 switch (input)
                 {
                     case 1:
+                        addPayroll(payrolls, employees);
                         break;
                     case 2:
+                        payrollHistory(payrolls, employees);
+                        break;
+                    case 3:
+                        searchPayroll(payrolls);
                         break;
                     default:
                         Console.WriteLine("Returning to main menu...");
                         break;
                 }
-            } while (input != 3);
+            } while (input != 4);
+        }
+        
+        /*
+         * Asks the user for details included in a payroll.
+         * If all checks are passed, new payroll is added.
+         */        
+        static void addPayroll(List<Payroll> payrolls, List<Employee> employees)
+        {
+            Console.WriteLine("Enter payroll details");
+            Console.Write("ID: ");
+            long id = long.Parse(Console.ReadLine());
+
+            Console.Write("Employee ID: ");
+            int empID = int.Parse(Console.ReadLine());
+
+            Console.Write("Hours Worked: ");
+            double hoursWorked = double.Parse(Console.ReadLine());
+
+            Console.Write("Hourly Rate: ");
+            double rate = double.Parse(Console.ReadLine());
+
+            Console.Write("Date: ");
+            string date = Console.ReadLine();
+            Console.WriteLine();
+
+            if (id.ToString().Length != 11)
+            {
+                Console.WriteLine("Payroll ID must be 11 digits long.");
+                Console.WriteLine();
+                return;
+            }
+
+            if (empID.ToString().Length != 9)
+            {
+                Console.WriteLine("Employee ID must be 9 digits long.");
+                Console.WriteLine();
+                return;
+            }
+
+            var conflict = from pay in payrolls
+                           where pay.Id == id
+                           select pay;
+
+            if (conflict.Any())
+            {
+                Console.WriteLine("Payroll with that ID already exists");
+                Console.WriteLine();
+                return;
+            }
+
+            var existingEmp = from emp in employees
+                              where emp.Id == empID
+                              select emp;
+
+            if (!existingEmp.Any())
+            {
+                Console.WriteLine("That employee ID does not exist.");
+                Console.WriteLine();
+                return;
+            }
+
+            payrolls.Add(new Payroll(id, hoursWorked, rate, empID, date));
+            Console.WriteLine("Following payroll was added.");
+            Console.WriteLine(payrolls.Last().ToString());
+            Console.WriteLine();
         }
 
-        static void vacationMenu()
+        /*
+         * Asks user for employee ID to see payroll history
+         * If Employee ID exists AND if there are any payrolls for the employee, all payrolls for that employee ID will be displayed
+         */
+        static void payrollHistory(List<Payroll> payrolls, List<Employee> employees)
+        {
+            Console.WriteLine("Enter employee ID for whome you want to see payroll history");
+            Console.Write("Employee ID: ");
+            int empID = int.Parse(Console.ReadLine());
+
+            Console.WriteLine();
+
+            if (empID.ToString().Length != 9)
+            {
+                Console.WriteLine("Employee ID must be 9 digits long.");
+                Console.WriteLine();
+                return;
+            }
+
+            var existingEmp = from emp in employees
+                              where emp.Id == empID
+                              select emp;
+
+            if (!existingEmp.Any())
+            {
+                Console.WriteLine("That employee ID does not exist.");
+                Console.WriteLine();
+                return;
+            }
+
+            var history = from payroll in payrolls
+                          where payroll.EmployeeID == empID
+                          orderby payroll.Date
+                          select payroll;
+
+            foreach (var item in history)
+            {
+                Console.WriteLine(item.ToString());
+            }
+            Console.WriteLine();
+        }
+
+        /*
+         * Asks user for payroll ID to search for payroll
+         * If payroll ID exists, it will be displayed
+         */
+        static void searchPayroll(List<Payroll> payrolls)
+        {
+            Console.WriteLine("Enter payroll ID to search for");
+            Console.Write("Payroll ID: ");
+            long iD = long.Parse(Console.ReadLine());
+
+            Console.WriteLine();
+
+            if (iD.ToString().Length != 11)
+            {
+                Console.WriteLine("Payroll ID must be 11 digits long.");
+                Console.WriteLine();
+                return;
+            }
+
+            var existing = from payroll in payrolls
+                              where payroll.Id == iD
+                              select payroll;
+
+            if (!existing.Any())
+            {
+                Console.WriteLine("That payroll ID does not exist.");
+                Console.WriteLine();
+                return;
+            }
+
+            foreach (var item in existing)
+            {
+                Console.WriteLine(item.ToString());
+            }
+            Console.WriteLine();
+        }
+
+        static void vacationMenu(List<Vacation> vacations)
         {
             int input;
 
@@ -193,6 +456,7 @@ namespace UddipAminA1
                 switch (input)
                 {
                     case 1:
+                        viewVacations(vacations);
                         break;
                     case 2:
                         break;
@@ -205,6 +469,39 @@ namespace UddipAminA1
                         break;
                 }
             } while (input != 3);
+        }
+
+        /**/
+        static void viewVacations(List<Vacation> vacations)
+        {
+            var vacationDays = from vacation in vacations
+                               orderby vacation.EmployeeID
+                               select vacation;
+            if (!vacationDays.Any())
+            {
+                Console.WriteLine("There are no vacation days");
+                Console.WriteLine();
+                return;
+            }
+
+            Console.WriteLine($"{"Vacation ID",-15} {"Employee ID",-20} {"Vacation Days",-20}");
+            Console.WriteLine("---------------------------------------------------------------------------");
+
+            foreach (var item in vacationDays)
+            {
+                Console.WriteLine(item.ToString());
+            }
+        }
+
+        static int mainMenu()
+        {
+            Console.WriteLine("Welcome, please choose a command:");
+            Console.WriteLine("Press 1 to modify employees");
+            Console.WriteLine("Press 2 to add payroll");
+            Console.WriteLine("Press 3 to view vacation days");
+            Console.WriteLine("Press 4 to exit program");
+
+            return int.Parse(Console.ReadLine());
         }
 
         /*
@@ -252,7 +549,7 @@ namespace UddipAminA1
                         employeeMenu(employees);
                         break;
                     case 2:
-                        payrollMenu();
+                        payrollMenu(payrolls, employees);
                         input = 2;
                         break;
                     case 3:

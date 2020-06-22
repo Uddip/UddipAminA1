@@ -61,7 +61,7 @@ namespace UddipAminA1
 
         public override string ToString()
         {
-            return base.ToString();
+            return $"ID:{_iD,-15} Employee ID:{_employeeID,-15} Hours Worked:{_hoursWorked,-5} Hourly Rate:{_rate,-5} Date:{_date,-5}";
         }
     }
 }

@@ -47,6 +47,12 @@ namespace UddipAminA1
 
         public String Name
         {
+            get { return _name; }
+            set { _name = value; }
+        }
+
+        public String Address
+        {
             get { return _address; }
             set { _address = value; }
         }
