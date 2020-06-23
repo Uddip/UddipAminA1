@@ -8,7 +8,7 @@ namespace UddipAminA1
 {
     class Program
     {
-        static void employeeMenu(List<Employee> employees)
+        static void employeeMenu(List<Employee> employees, List<Vacation> vacations)
         {
             int input;
 
@@ -30,7 +30,7 @@ namespace UddipAminA1
                         viewEmployees(employees);
                         break;
                     case 2:
-                        addEmployee(employees);
+                        addEmployee(employees, vacations);
                         break;
                     case 3:
                         updateEmployee(employees);
@@ -77,7 +77,7 @@ namespace UddipAminA1
          * If phone # is NOT 10 digit outputs an error message and returns.
          * If employee with the same ID and phone # exists, prompts user to try again after updating information and returns.
          */
-        static void addEmployee(List<Employee> employees)
+        static void addEmployee(List<Employee> employees, List<Vacation> vacations)
         {
             Console.WriteLine("Please enter the employee's details.");
             Console.Write("Name: ");
@@ -124,7 +124,24 @@ namespace UddipAminA1
                 return;
             }
 
+            Console.WriteLine("Adding new employee...");
             employees.Add(new Employee(id, phone, name, address, email, role));
+            Console.WriteLine("Successfully added");
+            Console.WriteLine();
+
+            long vacID;
+            do
+            {
+                Console.Write("Enter Vacation ID for new employee (9 Digits Long): ");
+                vacID = long.Parse(Console.ReadLine());
+
+                if (vacID.ToString().Length != 9)
+                {
+                    Console.WriteLine("Please make sure the Vacation ID is 9 digits long.");
+                }
+            } while (vacID.ToString().Length != 9);
+
+            vacations.Add(new Vacation(vacID, id, 14));
         }
 
 
@@ -260,7 +277,7 @@ namespace UddipAminA1
             Console.WriteLine();
         }
 
-        static void payrollMenu(List<Payroll> payrolls, List<Employee> employees)
+        static void payrollMenu(List<Payroll> payrolls, List<Employee> employees, List<Vacation> vacations)
         {
             int input;
 
@@ -278,7 +295,7 @@ namespace UddipAminA1
                 switch (input)
                 {
                     case 1:
-                        addPayroll(payrolls, employees);
+                        addPayroll(payrolls, employees, vacations);
                         break;
                     case 2:
                         payrollHistory(payrolls, employees);
@@ -297,7 +314,7 @@ namespace UddipAminA1
          * Asks the user for details included in a payroll.
          * If all checks are passed, new payroll is added.
          */        
-        static void addPayroll(List<Payroll> payrolls, List<Employee> employees)
+        static void addPayroll(List<Payroll> payrolls, List<Employee> employees, List<Vacation> vacations)
         {
             Console.WriteLine("Enter payroll details");
             Console.Write("ID: ");
@@ -352,7 +369,12 @@ namespace UddipAminA1
                 return;
             }
 
+            var vacation = from vac in vacations
+                           where vac.EmployeeID == empID
+                           select vac;
+
             payrolls.Add(new Payroll(id, hoursWorked, rate, empID, date));
+            vacations[vacations.IndexOf(vacation.First())].NumDays += 1;
             Console.WriteLine("Following payroll was added.");
             Console.WriteLine(payrolls.Last().ToString());
             Console.WriteLine();
@@ -437,7 +459,7 @@ namespace UddipAminA1
             Console.WriteLine();
         }
 
-        static void vacationMenu(List<Vacation> vacations)
+        static void vacationMenu(List<Vacation> vacations, List<Employee> employees)
         {
             int input;
 
@@ -459,10 +481,13 @@ namespace UddipAminA1
                         viewVacations(vacations);
                         break;
                     case 2:
+                        bookVacation(vacations, employees);
                         break;
                     case 3:
+                        updateVacation(vacations);
                         break;
                     case 4:
+                        removeVacation(vacations);
                         break;
                     default:
                         Console.WriteLine("Returning to main menu...");
@@ -471,7 +496,9 @@ namespace UddipAminA1
             } while (input != 3);
         }
 
-        /**/
+        /*
+         * Prints out all vacations
+         */
         static void viewVacations(List<Vacation> vacations)
         {
             var vacationDays = from vacation in vacations
@@ -484,13 +511,175 @@ namespace UddipAminA1
                 return;
             }
 
-            Console.WriteLine($"{"Vacation ID",-15} {"Employee ID",-20} {"Vacation Days",-20}");
+            Console.WriteLine($"{"Vacation ID",-15} {"Employee ID",-15} {"Vacation Days",-5}");
             Console.WriteLine("---------------------------------------------------------------------------");
 
             foreach (var item in vacationDays)
             {
                 Console.WriteLine(item.ToString());
             }
+            Console.WriteLine();
+        }
+
+        /*
+         * Asks user for all details to book vacation.
+         * Once all checks are passed adds the booking to the system.
+         * Displays added booking.
+         */
+        static void bookVacation(List<Vacation> vacations, List<Employee> employees)
+        {
+            Console.WriteLine("Enter booking details for vacation days");
+            Console.Write("ID: ");
+            long id = long.Parse(Console.ReadLine());
+
+            Console.Write("Employee ID: ");
+            int empId = int.Parse(Console.ReadLine());
+
+            Console.Write("Vacation Days: ");
+            int numDays = int.Parse(Console.ReadLine());
+            Console.WriteLine();
+
+            if (id.ToString().Length != 9)
+            {
+                Console.WriteLine("Vacation ID must be 9 digits long.");
+                Console.WriteLine();
+                return;
+            }
+
+            if (empId.ToString().Length != 9)
+            {
+                Console.WriteLine("Employee ID must be 9 digits long.");
+                Console.WriteLine();
+                return;
+            }
+
+            var exists = from vac in vacations
+                         where vac.Id == id
+                         select vac;
+
+            if (exists.Any())
+            {
+                Console.WriteLine("That vacation ID already exists.");
+                Console.WriteLine();
+                return;
+            }
+
+            var employeeExist = from emp in employees
+                                where emp.Id == empId
+                                select emp;
+
+            if (!employeeExist.Any())
+            {
+                Console.WriteLine("That employee does not exist.");
+                Console.WriteLine();
+                return;
+            }
+
+            vacations.Add(new Vacation(id, empId, numDays));
+            Console.WriteLine("Following vacation entry added");
+            Console.WriteLine($"{"Vacation ID",-15} {"Employee ID",-15} {"Vacation Days",-5}");
+            Console.WriteLine("---------------------------------------------------------------------------");
+            Console.WriteLine(vacations.Last().ToString());
+            Console.WriteLine();
+        }
+
+        /*
+         * Asks user for vaction ID to update.
+         * If not found then returns.
+         * If found prompts user to enter new number of vacation days.
+         * Updates and displays vacation entry.
+         */
+        static void updateVacation(List<Vacation> vacations)
+        {
+            Console.WriteLine("Enter Vacation ID ");
+            Console.Write("ID: ");
+            long id = long.Parse(Console.ReadLine());
+
+            Console.WriteLine();
+
+            if (id.ToString().Length != 9)
+            {
+                Console.WriteLine("Vacation ID must be 9 digits long.");
+                Console.WriteLine();
+                return;
+            }
+
+            var exists = from vac in vacations
+                         where vac.Id == id
+                         select vac;
+
+            if (!exists.Any())
+            {
+                Console.WriteLine("That vacation ID does not exist.");
+                Console.WriteLine();
+                return;
+            }
+
+            Console.WriteLine("Enter the number of days you wish to update to");
+            Console.Write("Vacation Days: ");
+            int numDays = int.Parse(Console.ReadLine());
+
+            vacations[vacations.IndexOf(exists.First())].NumDays = numDays;
+            Console.WriteLine("Following vacation days have been updated");
+            Console.WriteLine($"{"Vacation ID",-15} {"Employee ID",-15} {"Vacation Days",-5}");
+            Console.WriteLine("---------------------------------------------------------------------------");
+            Console.WriteLine(vacations[vacations.IndexOf(exists.First())].ToString());
+            Console.WriteLine();
+        }
+
+        /*
+         * Asks user for vacation ID to be removed.
+         * If not found then returns.
+         * If found displays and asks user if they wish to remove.
+         * If no....returns.
+         * If yes...removes vacation entry.
+         */
+        static void removeVacation(List<Vacation> vacations)
+        {
+            Console.WriteLine("Enter Vacation ID ");
+            Console.Write("ID: ");
+            long id = long.Parse(Console.ReadLine());
+
+            Console.WriteLine();
+
+            if (id.ToString().Length != 9)
+            {
+                Console.WriteLine("Vacation ID must be 9 digits long.");
+                Console.WriteLine();
+                return;
+            }
+
+            var exists = from vac in vacations
+                         where vac.Id == id
+                         select vac;
+
+            if (!exists.Any())
+            {
+                Console.WriteLine("That vacation ID does not exist.");
+                Console.WriteLine();
+                return;
+            }
+
+            Console.WriteLine("Following vacation ID was found");
+            Console.WriteLine($"{"Vacation ID",-15} {"Employee ID",-15} {"Vacation Days",-5}");
+            Console.WriteLine("---------------------------------------------------------------------------");
+            Console.WriteLine(vacations[vacations.IndexOf(exists.First())].ToString());
+
+            Console.WriteLine("Do you wish to remove it (Y/N?");
+            string input = Console.ReadLine();
+
+            if (input.ToUpper().Equals("N"))
+            {
+                Console.WriteLine("Returning to vacations menu...");
+                Console.WriteLine();
+                return;
+            }
+
+            Console.WriteLine("Removing selected vacation ID...");
+            vacations.Remove(exists.First());
+
+            Console.WriteLine("Successfully removed");
+            Console.WriteLine();
         }
 
         static int mainMenu()
@@ -546,14 +735,14 @@ namespace UddipAminA1
                 switch (input)
                 {
                     case 1:
-                        employeeMenu(employees);
+                        employeeMenu(employees, vacations);
                         break;
                     case 2:
-                        payrollMenu(payrolls, employees);
+                        payrollMenu(payrolls, employees, vacations);
                         input = 2;
                         break;
                     case 3:
-                        vacationMenu();
+                        vacationMenu(vacations, employees);
                         input = 3;
                         break;
                     default:
